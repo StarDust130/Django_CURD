@@ -33,6 +33,26 @@ def product_list(request):
 
 #! GET ONE, EDIT and DELETE 
 @api_view(['GET', 'PUT', 'DELETE'])
-def product_detail(request):
-    pass
+def product_detail(request, pk):
+    try:
+        product = Product.objects.get(pk=pk)
+    except Product.DoesNotExist:
+        return Response({"error": "Product not found"}, status=404)
+    
+    if request.method == "GET":
+        serializer = ProductSerializer(product)
+        return Response(serializer.data)
+    
+    elif request.method == "PUT":
+        serializer = ProductSerializer(product , data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+    
+
+    elif request.method == "DELETE":
+        product.delete()
+        return Response(status=204)
+
 
