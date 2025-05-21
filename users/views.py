@@ -7,25 +7,37 @@ from .serializers import UserSerializer
 from rest_framework.permissions import AllowAny
 
 #! Create User 👺
+
+
 class UserCreateView(APIView):
-    permission_classes = [AllowAny]  # Anyone can create account
+    permission_classes = [AllowAny]  # Anyone can create an account
 
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(
+                {
+                    "message": "User created successfully 🥳",
+                    "user": serializer.data  # send back created user data
+                },
+                status=status.HTTP_201_CREATED
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #! Login 💠
+
+
 class LoginView(APIView):
-    permission_classes = [AllowAny]  # Anyone can try to login
+    permission_classes = [AllowAny]
 
     def post(self, request):
-        email = request.data.get('email')
+        username = request.data.get('username')
         password = request.data.get('password')
 
-        user = authenticate(request, username=email, password=password)
-        if user:
-            return Response({"message": "Login successful"}, status=status.HTTP_200_OK)
-        return Response({"error": "Invalid email or password"}, status=status.HTTP_401_UNAUTHORIZED)
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            return Response({"message": "Login successful 🥳"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Invalid username or password 😢"}, status=status.HTTP_401_UNAUTHORIZED)
